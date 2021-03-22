@@ -2,9 +2,9 @@ const express = require("express")
 const app = express()
 const bodyParser = require("body-parser")
 const mongoose = require("mongoose")
-const crypto = require('crypto');
 const { Client, Environment, ApiError } = require('square');
 const dotenv = require('dotenv');
+const JSONBig = require("json-bigint")
 dotenv.config();
 // const router = express.Router();
 
@@ -28,13 +28,10 @@ const client = new Client({
     accessToken: process.env.SQUARE_ACCESS_TOKEN,
   })
 
-// Set 'basePath' to switch between sandbox env and production env
-// sandbox: https://connect.squareupsandbox.com
-// production: https://connect.squareup.com
-defaultClient.basePath = 'https://connect.squareupsandbox.com';
+
 
 app.post('/process-payment', async (req, res) => {
-    const request_params = req.body;
+    const requestParams = req.body;
   
   // Charge the customer's card
   const paymentsApi = client.paymentsApi;
@@ -44,27 +41,31 @@ app.post('/process-payment', async (req, res) => {
       amount: 100, // $1.00 charge
       currency: 'USD'
     },
-    locationId: requestParams.location_id,
-    idempotencyKey: requestParams.idempotency_key,
+    locationId: requestParams.locationId,
+    idempotencyKey: requestParams.idempotencyKey,
   };
+
+//   console.log(error)
   
   try {
     const response = await paymentsApi.createPayment(requestBody);
+    const parsedResponse = JSONBig.parse(JSONBig.stringify(response));
     res.status(200).json({
       'title': 'Payment Successful',
-      'result': response.result
+      'result': parsedResponse
     });
   } catch(error) {
-    let errorResult = null;
-    if (error instanceof ApiError) {
-      errorResult = error.errors;
-    } else {
-      errorResult = error;
-    }
-    res.status(500).json({
-      'title': 'Payment Failure',
-      'result': errorResult
-    });
+      let errorResult = null;
+      if (error instanceof ApiError) {
+          errorResult = error.errors;
+        } else {
+            errorResult = error;
+        }
+        res.status(500).json({
+            'title': 'Payment Failure',
+            'result': errorResult
+        });
+        console.log(error)
   }
 });
 
