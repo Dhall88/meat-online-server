@@ -22,9 +22,6 @@ router.get("/:category", async (req,res) => {
         if (error) console.log(error)
         else res.send(result)
     })
-
-    // console.log(meats)
-    // res.send(meats)
 })
 
 module.exports = router;
