@@ -1,12 +1,35 @@
 const express = require("express")
-const app = express()
 const bodyParser = require("body-parser")
 const mongoose = require("mongoose")
+const passport = require("passport")
 const { Client, Environment, ApiError } = require('square');
 const dotenv = require('dotenv');
 const JSONBig = require("json-bigint")
 dotenv.config();
+// const LocalStrategy = require('passport-local').Strategy;
 // const router = express.Router();
+
+// main config
+var app = express();
+// app.set('port', process.env.PORT || 1337);
+// app.set('views', __dirname + '/views');
+// app.set('view engine', 'jade');
+// app.set('view options', { layout: false });
+// app.use(express.logger());
+// app.use(express.bodyParser());
+// app.use(express.methodOverride());
+// app.use(express.cookieParser('your secret here'));
+// app.use(express.session());
+// app.use(passport.initialize());
+// app.use(passport.session());
+// app.use(app.router);
+// app.use(express.static(path.join(__dirname, 'public')));
+
+// passport config
+// var User = require('./models/user');
+// passport.use(new LocalStrategy(User.authenticate()));
+// passport.serializeUser(User.serializeUser());
+// passport.deserializeUser(User.deserializeUser());
 
 app.use(bodyParser.urlencoded({extended: false}));
 app.use(bodyParser.json());
@@ -20,7 +43,12 @@ app.use(function (req, res, next) {
 });
 
 
-mongoose.connect('mongodb://localhost:27017/meat', { useNewUrlParser: true, useUnifiedTopology: true })
+// mongoose.connect('mongodb://localhost:27017/meat', { useNewUrlParser: true, useUnifiedTopology: true })
+// const conn = mongoose.createConnection('mongodb://localhost:27017/meat')
+// conn.model('Meat', require('./models/meat'))
+
+// conn.model('User', require('./models/user'))
+
 
 const client = new Client({
     timeout:3000,
@@ -70,6 +98,7 @@ app.post('/process-payment', async (req, res) => {
 });
 
 const meatRouter = require("./routes/meatRoutes");
+const userRouter = require("./routes/userRoutes");
 // const wholesaleRouter = require("./routes/wholesaleRoutes");
 
 app.get('/', function(req,res){
@@ -78,6 +107,8 @@ app.get('/', function(req,res){
 
 app.use('/api/meats', meatRouter);
 // app.use('/api/wholesale', wholesaleRouter);
+
+app.use('/api/users', userRouter);
 
 app.listen(3000);
 console.log('starting app')

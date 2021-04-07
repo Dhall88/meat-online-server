@@ -10,4 +10,4 @@ const schema = mongoose.Schema({
     catagories: [String]
 })
 
-module.exports = mongoose.model("Meat", schema)
+module.exports = schema;
