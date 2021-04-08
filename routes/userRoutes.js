@@ -38,6 +38,7 @@ userRouter.post('/signup', (req, res, next) => {
 });
 
 userRouter.post('/login', passport.authenticate('local'), (req, res) => {
+    console.log('in login')
   res.statusCode = 200;
   res.setHeader('Content-Type', 'application/json');
   res.json({success: true, status: 'You are successfully logged in!'});
