@@ -11,29 +11,22 @@ dotenv.config();
 
 // main config
 var app = express();
-// app.set('port', process.env.PORT || 1337);
-// app.set('views', __dirname + '/views');
-// app.set('view engine', 'jade');
-// app.set('view options', { layout: false });
-// app.use(express.logger());
-// app.use(express.bodyParser());
-// app.use(express.methodOverride());
-// app.use(express.cookieParser('your secret here'));
-// app.use(express.session());
-// app.use(passport.initialize());
-// app.use(passport.session());
-// app.use(app.router);
-// app.use(express.static(path.join(__dirname, 'public')));
 
-// passport config
-// var User = require('./models/user');
-// passport.use(new LocalStrategy(User.authenticate()));
-// passport.serializeUser(User.serializeUser());
-// passport.deserializeUser(User.deserializeUser());
-
-app.use(bodyParser.urlencoded({extended: false}));
-app.use(bodyParser.json());
 app.use(express.static(__dirname));
+const expressSession = require('express-session')({
+  secret: 'secret',
+  resave: false,
+  saveUninitialized: false
+});
+
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
+app.use(expressSession);
+
+app.use(passport.initialize());
+app.use(passport.session());
+
+
 
 app.use(function (req, res, next) {
     res.header("Access-Control-Allow-Origin", "*");
@@ -109,6 +102,8 @@ app.use('/api/meats', meatRouter);
 // app.use('/api/wholesale', wholesaleRouter);
 
 app.use('/api/users', userRouter);
+
+
 
 app.listen(3000);
 console.log('starting app')

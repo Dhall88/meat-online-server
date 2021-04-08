@@ -8,44 +8,62 @@ const userSchema = require("../models/user");
 const conn = mongoose.createConnection('mongodb://localhost:27017/user')
 const User = conn.model("User", userSchema)
 
+/* PASSPORT LOCAL AUTHENTICATION */
+
+passport.use(User.createStrategy());
+
+passport.serializeUser(User.serializeUser());
+passport.deserializeUser(User.deserializeUser());
 
 
-  userRouter.get('/', function (req, res) {
-      res.render('index', { user : req.user });
-  });
 
-  userRouter.get('/register', function(req, res) {
-      res.render('register', { });
-  });
+const connectEnsureLogin = require('connect-ensure-login');
 
-  userRouter.post('/register', function(req, res) {
-    User.register(new User({ username : req.body.username }), req.body.password, function(err, user) {
-        if (err) {
-            return res.render('register', { user : user });
-        }
+userRouter.post('/login', (req, res, next) => {
+    console.log('in login')
+  passport.authenticate('local',
+  (err, user, info) => {
+    if (err) {
+      return next(err);
+    }
 
-        passport.authenticate('local')(req, res, function () {
-          res.redirect('/');
-        });
+    if (!user) {
+      return res.redirect('/login?info=' + info);
+    }
+
+    req.logIn(user, function(err) {
+      if (err) {
+        return next(err);
+      }
+
+      return res.redirect('/');
     });
-  });
 
-  userRouter.get('/login', function(req, res) {
-      res.render('login', { user : req.user });
-  });
+  })(req, res, next);
+});
 
-  userRouter.post('/login', passport.authenticate('local'), function(req, res) {
-      res.redirect('/');
-  });
+userRouter.get('/login',
+  (req, res) => res.sendFile('html/login.html',
+  { root: __dirname })
+);
 
-  userRouter.get('/logout', function(req, res) {
-      req.logout();
-      res.redirect('/');
-  });
+userRouter.get('/',
+  connectEnsureLogin.ensureLoggedIn(),
+  (req, res) => res.sendFile('html/index.html', {root: __dirname})
+);
 
-  userRouter.get('/ping', function(req, res){
-      console.log('in ping')
-      res.send("pong!", 200);
-  });
+userRouter.get('/private',
+  connectEnsureLogin.ensureLoggedIn(),
+  (req, res) => res.sendFile('html/private.html', {root: __dirname})
+);
+
+userRouter.get('/user',
+  connectEnsureLogin.ensureLoggedIn(),
+  (req, res) => res.send({user: req.user})
+);
+
+User.register({username:'paul', active: false}, 'paul');
+User.register({username:'jay', active: false}, 'jay');
+User.register({username:'roy', active: false}, 'roy');
 
   module.exports = userRouter;
