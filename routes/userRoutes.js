@@ -20,7 +20,7 @@ passport.deserializeUser(User.deserializeUser());
 
 userRouter.post('/signup', (req, res, next) => {
     console.log('in signup')
-  User.register(new User({username: req.body.username}), 
+  User.register(new User({username: req.body.username, admin: true}), 
     req.body.password, (err, user) => {
     if(err) {
       res.statusCode = 500;
@@ -37,11 +37,12 @@ userRouter.post('/signup', (req, res, next) => {
   });
 });
 
-userRouter.post('/login', passport.authenticate('local'), (req, res) => {
-    console.log('in login')
-  res.statusCode = 200;
-  res.setHeader('Content-Type', 'application/json');
-  res.json({success: true, status: 'You are successfully logged in!'});
+userRouter.post('/login', passport.authenticate('local'), async(req, res) => {
+    const user = await User.find({"username":`${req.body.username}`})
+    res.statusCode = 200;
+    res.setHeader('Content-Type', 'application/json');
+    res.json({success: true, status: 'You are successfully logged in!', admin: user[0].admin });
+
 });
 
 userRouter.get('/logout', (req, res) => {
