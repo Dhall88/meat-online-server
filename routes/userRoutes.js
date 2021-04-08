@@ -1,6 +1,7 @@
 const passport = require('passport');
 const express = require('express');
 const mongoose = require('mongoose')
+const LocalStrategy = require('passport-local').Strategy;
 // const user = require('./models/account');
 const userRouter = express.Router();
 const userSchema = require("../models/user");
@@ -10,60 +11,50 @@ const User = conn.model("User", userSchema)
 
 /* PASSPORT LOCAL AUTHENTICATION */
 
-passport.use(User.createStrategy());
-
+passport.use(new LocalStrategy(User.authenticate()));
 passport.serializeUser(User.serializeUser());
 passport.deserializeUser(User.deserializeUser());
 
 
+// userRouter.use(bodyParser.json());
 
-const connectEnsureLogin = require('connect-ensure-login');
-
-userRouter.post('/login', (req, res, next) => {
-    console.log('in login')
-  passport.authenticate('local',
-  (err, user, info) => {
-    if (err) {
-      return next(err);
+userRouter.post('/signup', (req, res, next) => {
+    console.log('in signup')
+  User.register(new User({username: req.body.username}), 
+    req.body.password, (err, user) => {
+    if(err) {
+      res.statusCode = 500;
+      res.setHeader('Content-Type', 'application/json');
+      res.json({err: err});
     }
-
-    if (!user) {
-      return res.redirect('/login?info=' + info);
+    else {
+      passport.authenticate('local')(req, res, () => {
+        res.statusCode = 200;
+        res.setHeader('Content-Type', 'application/json');
+        res.json({success: true, status: 'Registration Successful!'});
+      });
     }
-
-    req.logIn(user, function(err) {
-      if (err) {
-        return next(err);
-      }
-
-      return res.redirect('/');
-    });
-
-  })(req, res, next);
+  });
 });
 
-userRouter.get('/login',
-  (req, res) => res.sendFile('html/login.html',
-  { root: __dirname })
-);
+userRouter.post('/login', passport.authenticate('local'), (req, res) => {
+  res.statusCode = 200;
+  res.setHeader('Content-Type', 'application/json');
+  res.json({success: true, status: 'You are successfully logged in!'});
+});
 
-userRouter.get('/',
-  connectEnsureLogin.ensureLoggedIn(),
-  (req, res) => res.sendFile('html/index.html', {root: __dirname})
-);
+userRouter.get('/logout', (req, res) => {
+  if (req.session) {
+    req.session.destroy();
+    res.clearCookie('session-id');
+    res.redirect('/');
+  }
+  else {
+    var err = new Error('You are not logged in!');
+    err.status = 403;
+    next(err);
+  }
+});
 
-userRouter.get('/private',
-  connectEnsureLogin.ensureLoggedIn(),
-  (req, res) => res.sendFile('html/private.html', {root: __dirname})
-);
-
-userRouter.get('/user',
-  connectEnsureLogin.ensureLoggedIn(),
-  (req, res) => res.send({user: req.user})
-);
-
-User.register({username:'paul', active: false}, 'paul');
-User.register({username:'jay', active: false}, 'jay');
-User.register({username:'roy', active: false}, 'roy');
 
   module.exports = userRouter;
