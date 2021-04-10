@@ -23,4 +23,14 @@ meatRouter.get("/:category", async (req,res) => {
     })
 })
 
+    meatRouter.get("/search/:search", async (req,res) => {
+        let search = req.params.search
+        let regex = new RegExp(`.*${search}.*`,'i')
+    
+        await Meat.find({name:regex}).sort(req.query.sorting).exec((error, result) => {
+        if (error) console.log(error)
+        else res.send(result)
+    })
+})
+
 module.exports = meatRouter;
