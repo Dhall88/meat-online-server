@@ -46,7 +46,8 @@ userRouter.post('/login', passport.authenticate('local'), async(req, res) => {
 });
 
 userRouter.get('/logout', (req, res) => {
-  if (req.session) {
+    if (req.session) {
+        console.log('in log out')
     req.session.destroy();
     res.clearCookie('session-id');
     res.redirect('/');

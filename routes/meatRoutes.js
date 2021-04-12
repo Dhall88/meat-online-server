@@ -14,7 +14,7 @@ meatRouter.get("/", async (req,res) => {
 meatRouter.get("/:category", async (req,res) => {
     let category = req.params.category
     let regex = new RegExp(`${category}`)
-
+    console.log("in meat category")
 
 
      await Meat.find({catagories: regex}).sort(req.query.sorting).exec((error, result) => {
@@ -22,6 +22,15 @@ meatRouter.get("/:category", async (req,res) => {
         else res.send(result)
     })
 })
+
+    meatRouter.put("/:id", async (req,res) => {
+        var meat = req.body;
+
+        console.log(meat)
+        
+
+        // company = _.extend(company, req.body);
+    })
 
     meatRouter.get("/search/:search", async (req,res) => {
         let search = req.params.search
