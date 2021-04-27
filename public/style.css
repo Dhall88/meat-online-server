@@ -1,5 +1,6 @@
 img {
+    display: block;
     width: 60%;
     height: auto;
-    margin-right: auto;
+    margin: auto;
 }
