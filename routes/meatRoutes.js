@@ -50,10 +50,16 @@ meatRouter.get("/:category", async (req,res) => {
         // company = _.extend(company, req.body);
     })
 
+    meatRouter.delete("/:id", async (req,res) => {
+        Meat.findByIdAndDelete(req.params.id, function (err, docs) {
+            if (err) return res.status(500).send(err)
+            return res.send()
+        });
+    })
+
     meatRouter.post("/", async (req,res) => {
         const product = req.body
 
-        console.log(product)
         await new Meat({
             name: product.name,
             price: product.price,

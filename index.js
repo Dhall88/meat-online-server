@@ -5,6 +5,7 @@ const passport = require("passport")
 const { Client, Environment, ApiError } = require('square');
 const dotenv = require('dotenv');
 const JSONBig = require("json-bigint")
+const path = require('path')
 dotenv.config();
 // const LocalStrategy = require('passport-local').Strategy;
 // const router = express.Router();
@@ -12,16 +13,18 @@ dotenv.config();
 // main config
 var app = express();
 
-app.use(express.static(__dirname));
-const expressSession = require('express-session')({
-  secret: 'secret',
-  resave: false,
-  saveUninitialized: false
-});
+// app.use(express.static(__dirname));
+// const expressSession = require('express-session')({
+//   secret: 'secret',
+//   resave: false,
+//   saveUninitialized: false
+// });
+
+app.use(express.static('public'))
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
-app.use(expressSession);
+// app.use(expressSession);
 
 app.use(passport.initialize());
 app.use(passport.session());
@@ -95,15 +98,15 @@ const userRouter = require("./routes/userRoutes");
 // const wholesaleRouter = require("./routes/wholesaleRoutes");
 
 app.get('/', function(req,res){
-	res.json({message:'You did it!'})
+	// res.json({message:'You did it!'})
+  res.sendFile(path.join(__dirname, "public", "index.html"));
 })
 
-app.use('/api/meats', meatRouter);
-// app.use('/api/wholesale', wholesaleRouter);
+// app.use('/api/meats', meatRouter);
+// // app.use('/api/wholesale', wholesaleRouter);
 
-app.use('/api/users', userRouter);
+// app.use('/api/users', userRouter);
 
 
 
 app.listen(3000);
-console.log('starting app')
