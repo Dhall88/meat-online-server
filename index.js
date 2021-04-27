@@ -13,6 +13,8 @@ dotenv.config();
 // main config
 var app = express();
 
+const PORT = process.env.PORT || 5000;
+
 // app.use(express.static(__dirname));
 // const expressSession = require('express-session')({
 //   secret: 'secret',
@@ -109,4 +111,4 @@ app.get('/', function(req,res){
 
 
 
-app.listen(3000);
+app.listen(`running on port: ${PORT}`);
